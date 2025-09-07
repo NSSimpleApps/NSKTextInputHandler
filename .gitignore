@@ -1,0 +1,6 @@
+# *.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+# *.xcodeproj/xcshareddata
+*.xcworkspace
+.DS_Store
+Pods/
