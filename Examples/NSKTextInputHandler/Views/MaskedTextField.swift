@@ -9,19 +9,19 @@ import SwiftUI
 import SwiftUIIntrospect
 
 struct MaskedTextField: View {
-    @ObservedObject var maskedViewModel: MaskedViewModel
+    @ObservedObject var textFieldViewModel: TextFieldViewModel
     
     var body: some View {
         TextField(
             "Placeholder",
-            text: self.$maskedViewModel.text
+            text: self.$textFieldViewModel.text
         )
         .textFieldStyle(.roundedBorder)
         .introspect(
             .textField,
             on: .iOS(.v15, .v16, .v17, .v18),
             customize: { textField in
-                self.maskedViewModel.configure(textField: textField)
+                self.textFieldViewModel.configure(textField: textField)
             }
         )
     }

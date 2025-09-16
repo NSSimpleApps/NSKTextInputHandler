@@ -1,5 +1,5 @@
 //
-//  NSKTextInputHandler.swift
+//  NSKTextFieldInputHandler.swift
 //  NSKTextInputHandler
 //
 //  Created by user on 30.08.2025.
@@ -7,30 +7,32 @@
 
 import UIKit
 
+public typealias NSKTextFieldInputDecisionHandler<NSKTextInputWarning, NSKTextInputError: Error> =
+@MainActor @Sendable (NSKTextFieldInputHandler<NSKTextInputWarning, NSKTextInputError>, NSKTextInputInfo) throws(NSKTextInputError) -> NSKTextInputDecision<NSKTextInputWarning>
+
+public typealias NSKTextFieldInputResultHandler<NSKTextInputWarning, NSKTextInputError: Error> =
+@MainActor @Sendable (NSKTextFieldInputHandler<NSKTextInputWarning, NSKTextInputError>, Result<NSKTextInputCustomText<NSKTextInputWarning>, NSKTextInputError>) -> Void
+
+
 @MainActor
-public final class NSKTextInputHandler<NSKTextInputWarning, NSKTextInputError: Error> {
-    private let decisionHandler: @MainActor (NSKTextInputHandler, NSKTextInputInfo) throws(NSKTextInputError) -> NSKTextInputDecision<NSKTextInputWarning>
-    private let resultHandler: @MainActor (NSKTextInputHandler, Result<NSKTextInputCustomText<NSKTextInputWarning>, NSKTextInputError>) -> Void
+public final class NSKTextFieldInputHandler<NSKTextInputWarning, NSKTextInputError: Error> {
     private let textFieldAction: UIAction
-    private let textInputDelegate: NSKTextInputDelegate
+    private let textFieldDelegate: NSKTextFieldDelegate
     
     public weak var parentHandler: AnyObject?
     private var textInputWarning: NSKTextInputWarning?
     
     public init(
-        decisionHandler:
-        @MainActor @Sendable @escaping (NSKTextInputHandler, NSKTextInputInfo) throws(NSKTextInputError) -> NSKTextInputDecision<NSKTextInputWarning>,
-        
-        resultHandler:
-        @MainActor @Sendable @escaping (NSKTextInputHandler, Result<NSKTextInputCustomText<NSKTextInputWarning>, NSKTextInputError>) -> Void)
+        decisionHandler: @escaping NSKTextFieldInputDecisionHandler<NSKTextInputWarning, NSKTextInputError>,
+        resultHandler: @escaping NSKTextFieldInputResultHandler<NSKTextInputWarning, NSKTextInputError>)
     {
-        let identifier = UIAction.Identifier(rawValue: "ns.simple.apps.NSKTextInputHandler")
+        let identifier = UIAction.Identifier(rawValue: "ns.simple.apps.NSKTextFieldInputHandler")
         self.textFieldAction = UIAction(
             identifier: identifier,
             handler: { action in
                 guard let textField = action.sender as? UITextField else { return }
-                guard let textInputDelegate = textField.delegate as? NSKTextInputDelegate else { return }
-                guard let self = textInputDelegate.parentHandler as? Self else { return }
+                guard let textFieldDelegate = textField.delegate as? NSKTextFieldDelegate else { return }
+                guard let self = textFieldDelegate.parentHandler as? Self else { return }
                 
                 let textInputWarning = self.textInputWarning
                 self.textInputWarning = nil
@@ -46,15 +48,12 @@ public final class NSKTextInputHandler<NSKTextInputWarning, NSKTextInputError: E
                     cursorPosition: cursorPosition,
                     warning: textInputWarning
                 )
-                self.resultHandler(self, .success(textInputCustomText))
+                resultHandler(self, .success(textInputCustomText))
             })
         
-        self.decisionHandler = decisionHandler
-        self.resultHandler = resultHandler
-        
-        self.textInputDelegate = .init(
-            decisionHandler: { textInputDelegate, textInputDecisionInfo in
-                guard let self = textInputDelegate.parentHandler as? Self else {
+        self.textFieldDelegate = .init(
+            decisionHandler: { textFieldDelegate, textInputDecisionInfo in
+                guard let self = textFieldDelegate.parentHandler as? Self else {
                     return false
                 }
                 
@@ -81,7 +80,7 @@ public final class NSKTextInputHandler<NSKTextInputWarning, NSKTextInputError: E
                 
                 do {
                     let textInputDecision =
-                    try self.decisionHandler(self, .init(currentText: currentText, textInputAction: textInputAction))
+                    try decisionHandler(self, .init(currentText: currentText, textInputAction: textInputAction))
                     
                     switch textInputDecision {
                     case .approve(let textInputWarning):
@@ -118,21 +117,20 @@ public final class NSKTextInputHandler<NSKTextInputWarning, NSKTextInputError: E
                         return false
                     }
                 } catch let textInputError as NSKTextInputError {
-                    self.resultHandler(self, .failure(textInputError))
+                    resultHandler(self, .failure(textInputError))
                     return false
                     
                 } catch {
                     return false
                 }
             })
-        self.textInputDelegate.parentHandler = self
+        self.textFieldDelegate.parentHandler = self
     }
     
     public func configure(textField: UITextField) {
         textField.addAction(self.textFieldAction, for: .editingChanged)
         
-        self.textInputDelegate.systemTextFieldDelegate = textField.delegate
-        textField.delegate = self.textInputDelegate
+        self.textFieldDelegate.configure(textField: textField)
     }
 }
 

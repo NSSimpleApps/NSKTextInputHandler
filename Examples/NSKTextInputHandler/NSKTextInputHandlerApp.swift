@@ -9,11 +9,31 @@ import SwiftUI
 
 @main
 struct NSKTextInputHandlerApp: App {
-    let contentView = ContentView()
+    
+    private let parentView: ParentView
+    
+    init() {
+        let phoneNumberMasker = PhoneNumberMasker()
+        let textFieldViewModel = TextFieldViewModel(
+            text: "",
+            masker: phoneNumberMasker
+        )
+        let textViewViewModel = TextViewViewModel(
+            text: "",
+            masker: phoneNumberMasker
+        )
+        
+        self.parentView = ParentView(
+            phoneNumberSingleLineViewModel: textFieldViewModel,
+            phoneNumberMultiLineViewModel: textViewViewModel
+        )
+    }
+    
+    
     
     var body: some Scene {
         WindowGroup {
-            self.contentView
+            self.parentView
         }
     }
 }

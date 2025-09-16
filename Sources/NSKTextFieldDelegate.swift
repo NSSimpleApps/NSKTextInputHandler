@@ -1,5 +1,5 @@
 //
-//  NSKTextInputDelegate.swift
+//  NSKTextFieldDelegate.swift
 //  NSKTextInputHandler
 //
 //  Created by user on 03.09.2025.
@@ -7,13 +7,15 @@
 
 import UIKit
 
-final class NSKTextInputDelegate: NSObject {
-    private let decisionHandler: @MainActor @Sendable (NSKTextInputDelegate, NSKTextInputDecisionInfo) -> Bool
+typealias NSKTextFieldDecisionHandler = @MainActor @Sendable (NSKTextFieldDelegate, NSKTextFieldDecisionInfo) -> Bool
+
+final class NSKTextFieldDelegate: NSObject {
+    private let decisionHandler: NSKTextFieldDecisionHandler
     
-    weak var systemTextFieldDelegate: UITextFieldDelegate?
     weak var parentHandler: AnyObject?
+    private weak var textFieldSystemDelegate: UITextFieldDelegate?
     
-    init(decisionHandler: @MainActor @Sendable @escaping (NSKTextInputDelegate, NSKTextInputDecisionInfo) -> Bool) {
+    init(decisionHandler: @escaping NSKTextFieldDecisionHandler) {
         self.decisionHandler = decisionHandler
         super.init()
     }
@@ -22,12 +24,18 @@ final class NSKTextInputDelegate: NSObject {
         if aSelector == #selector(UITextFieldDelegate.textField(_:shouldChangeCharactersIn:replacementString:)) {
             return self
         } else {
-            return self.systemTextFieldDelegate
+            return self.textFieldSystemDelegate
         }
+    }
+    
+    @MainActor
+    func configure(textField: UITextField) {
+        self.textFieldSystemDelegate = textField.delegate
+        textField.delegate = self
     }
 }
 
-extension NSKTextInputDelegate: UITextFieldDelegate {
+extension NSKTextFieldDelegate: UITextFieldDelegate {
     func textField(
         _ textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
@@ -37,7 +45,7 @@ extension NSKTextInputDelegate: UITextFieldDelegate {
     }
 }
 
-struct NSKTextInputDecisionInfo {
+struct NSKTextFieldDecisionInfo {
     let textField: UITextField
     let range: NSRange
     let replacementString: String

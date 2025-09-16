@@ -1,20 +1,22 @@
 //
-//  ContentView.swift
+//  TextViewListView.swift
 //  NSKTextInputHandler
 //
-//  Created by user on 29.08.2025.
+//  Created by user on 11.09.2025.
 //
 
 import SwiftUI
 
-struct ContentView: View {
-    @ObservedObject var phoneNumberViewModel = MaskedViewModel(text: "", masker: PhoneNumberMasker())
+struct TextViewListView: View {
+    @ObservedObject var phoneNumberViewModel: TextViewViewModel
     
     var body: some View {
         List {
             Section {
-                MaskedTextField(maskedViewModel: self.phoneNumberViewModel)
-                    .frame(maxWidth: .greatestFiniteMagnitude)
+                MaskedTextView(
+                    textViewViewModel: self.phoneNumberViewModel
+                )
+                .frame(maxWidth: .infinity)
             } header: {
                 if let suggestion = self.phoneNumberViewModel.suggestion {
                     Text(suggestion.suggestion)

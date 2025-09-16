@@ -1,37 +1,26 @@
 //
-//  MaskedViewModel.swift
+//  TextViewViewModel.swift
 //  NSKTextInputHandler
 //
-//  Created by user on 30.08.2025.
+//  Created by user on 14.09.2025.
 //
 
 import SwiftUI
 
-struct MaskedTextFieldWarning {
-    let warning: String
-}
-
-struct MaskedTextFieldError: Error {
-    let reason: String
-}
-
-struct MaskedTextFieldSuggestion {
-    let suggestion: String
-    let color: Color
-}
-
 @MainActor
-final class MaskedViewModel: ObservableObject {
+final class TextViewViewModel: ObservableObject {
     @Published var text: String = ""
     @Published var suggestion: MaskedTextFieldSuggestion?
     
     #warning("Тупорылый компилятор.")
-    private let textInputHandler: NSKTextInputHandler<MaskedTextFieldWarning, Error>
+    private let textViewInputHandler: NSKTextViewInputHandler<MaskedTextFieldWarning, Error>
     
     init(text: String, masker: MaskerProtocol) {
-        self.text = masker.mask(string: text)
-        self.textInputHandler = .init(
-            decisionHandler: { textInputHandler, textInputInfo in
+        let mastedText = masker.mask(string: text)
+        
+        self.text = mastedText
+        self.textViewInputHandler = .init(
+            decisionHandler: { textViewInputHandler, textInputInfo in
                 let currentText = textInputInfo.currentText
                 
                 switch textInputInfo.textInputAction {
@@ -82,8 +71,8 @@ final class MaskedViewModel: ObservableObject {
                     }
                 }
             },
-            resultHandler: { textFieldDecisionHandler, textInputCustomText in
-                guard let self = textFieldDecisionHandler.parentHandler as? Self else { return }
+            resultHandler: { textViewInputHandler, textInputCustomText in
+                guard let self = textViewInputHandler.parentHandler as? Self else { return }
                 
                 switch textInputCustomText {
                 case .success(let textInputWarning):
@@ -100,11 +89,12 @@ final class MaskedViewModel: ObservableObject {
                     #warning("Тупорылый компилятор.")
                     break
                 }
-            })
-        self.textInputHandler.parentHandler = self
+            }
+        )
+        self.textViewInputHandler.parentHandler = self
     }
     
-    func configure(textField: UITextField) {
-        self.textInputHandler.configure(textField: textField)
+    func configure(textView: UITextView) {
+        self.textViewInputHandler.configure(textView: textView)
     }
 }
