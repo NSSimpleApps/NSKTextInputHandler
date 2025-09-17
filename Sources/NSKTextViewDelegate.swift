@@ -8,21 +8,17 @@
 import UIKit
 
 typealias NSKTextViewDecisionHandler = @MainActor @Sendable (NSKTextViewDelegate, NSKTextViewDecisionInfo) -> Bool
-typealias NSKTextViewResultHandler = @MainActor @Sendable (NSKTextViewDelegate, UITextView) -> Void
 
 final class NSKTextViewDelegate: NSObject {
     private let decisionHandler: NSKTextViewDecisionHandler
-    private let resultHandler: NSKTextViewResultHandler
     
     weak var parentHandler: AnyObject?
     private weak var textViewSystemDelegate: UITextViewDelegate?
     
     init(
-        decisionHandler: @escaping NSKTextViewDecisionHandler,
-        resultHandler: @escaping NSKTextViewResultHandler
+        decisionHandler: @escaping NSKTextViewDecisionHandler
     ) {
         self.decisionHandler = decisionHandler
-        self.resultHandler = resultHandler
         super.init()
     }
     
@@ -32,14 +28,6 @@ final class NSKTextViewDelegate: NSObject {
         } else {
             return self.textViewSystemDelegate
         }
-        
-        
-//        if aSelector == #selector(UITextViewDelegate.textView(_:shouldChangeTextIn:replacementText:))
-//            || aSelector == #selector(UITextViewDelegate.textViewDidChange(_:)) {
-//            return self
-//        } else {
-//            return self.systemTextViewDelegate
-//        }
     }
     
     @MainActor
@@ -55,31 +43,14 @@ extension NSKTextViewDelegate: UITextViewDelegate {
         shouldChangeTextIn range: NSRange,
         replacementText text: String
     ) -> Bool {
-        let result = self.decisionHandler(self, .init(textView: textView, range: range, replacementString: text))
-        
-        if result {
-            textView.delegate = self.textViewSystemDelegate
-            
-            Task {
-                textView.delegate = self
-                self.resultHandler(self, textView)
-            }
-        }
-        return result
+        return self.decisionHandler(self,
+                                    .init(
+                                        textView: textView,
+                                        range: range,
+                                        replacementString: text
+                                    )
+        )
     }
-    
-//    func textViewDidChange(_ textView: UITextView) {
-//        print("AAAAAA", Date())
-//        
-//        textView.delegate = self.systemTextViewDelegate
-//        //self.systemTextViewDelegate?.textViewDidChange?(textView)
-//        
-//        textView.delegate = nil
-////        Task {
-////            textView.delegate = self
-////            self.resultHandler(self, textView)
-////        }
-//    }
 }
 
 struct NSKTextViewDecisionInfo {

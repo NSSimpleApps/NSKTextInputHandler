@@ -19,7 +19,7 @@ struct MaskedTextField: View {
         .textFieldStyle(.roundedBorder)
         .introspect(
             .textField,
-            on: .iOS(.v15, .v16, .v17, .v18),
+            on: .iOS(.v15, .v16, .v17, .v18, .v26),
             customize: { textField in
                 self.textFieldViewModel.configure(textField: textField)
             }

@@ -5,14 +5,17 @@
 //  Created by user on 11.09.2025.
 //
 
-import UIKit
+@preconcurrency import UIKit
 
 @MainActor
 public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputError: Error> {
     
     private let textViewDelegate: NSKTextViewDelegate
+    private let textDidChangeBlock: @Sendable (Notification) -> Void
     
     public weak var parentHandler: AnyObject?
+    
+    private var deinitHandler: NSKDeinitHandler?
     private var textInputWarning: NSKTextInputWarning?
     
     public init(
@@ -22,6 +25,32 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
         resultHandler:
         @MainActor @Sendable @escaping (NSKTextViewInputHandler, Result<NSKTextInputCustomText<NSKTextInputWarning>, NSKTextInputError>) -> Void
     ) {
+        
+        self.textDidChangeBlock = { notification in
+            guard let textView = notification.object as? UITextView else { return }
+            
+            Task { @MainActor in
+                guard let textViewDelegate = textView.delegate as? NSKTextViewDelegate else { return }
+                guard let self = textViewDelegate.parentHandler as? Self else { return }
+                
+                let textInputWarning = self.textInputWarning
+                self.textInputWarning = nil
+                
+                let text = textView.text ?? ""
+                let beginningOfDocument = textView.beginningOfDocument
+                let selectedPosition = textView.selectedTextRange?.start ?? beginningOfDocument
+                let offset = textView.offset(from: beginningOfDocument, to: selectedPosition)
+                let cursorPosition = text.index(text.startIndex, offsetBy: offset, limitedBy: text.endIndex) ?? text.endIndex
+                
+                let textInputCustomText = NSKTextInputCustomText(
+                    text: text,
+                    cursorPosition: cursorPosition,
+                    warning: textInputWarning
+                )
+                resultHandler(self, .success(textInputCustomText))
+            }
+        }
+        
         self.textViewDelegate = .init(
             decisionHandler: { textViewDelegate, textViewDecisionInfo in
                 guard let self = textViewDelegate.parentHandler as? Self else {
@@ -65,8 +94,8 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
                         let cursorPosition = textInputCustomText.cursorPosition
                         let offset = NSRange(cursorPosition..<cursorPosition, in: customText).location
                         
-//                        let delegate = textView.delegate
-//                        textView.delegate = nil
+                        let delegate = textView.delegate
+                        textView.delegate = nil
                         
                         Task {
                             textView.text = customText
@@ -81,8 +110,11 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
                             if let selectedTextRange {
                                 textView.selectedTextRange = selectedTextRange
                             }
-                            //textView.delegate = delegate
-                            //textViewDelegate.textViewDidChange(textView)
+                            textView.delegate = delegate
+                            NotificationCenter.default.post(
+                                name: UITextView.textDidChangeNotification,
+                                object: textView
+                            )
                         }
                         
                         return false
@@ -94,30 +126,25 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
                 } catch {
                     return false
                 }
-            },
-            resultHandler: { textViewDelegate, textView in
-                guard let self = textViewDelegate.parentHandler as? Self else { return }
-                
-                let textInputWarning = self.textInputWarning
-                self.textInputWarning = nil
-                
-                let text = textView.text ?? ""
-                let beginningOfDocument = textView.beginningOfDocument
-                let selectedPosition = textView.selectedTextRange?.start ?? beginningOfDocument
-                let offset = textView.offset(from: beginningOfDocument, to: selectedPosition)
-                let cursorPosition = text.index(text.startIndex, offsetBy: offset, limitedBy: text.endIndex) ?? text.endIndex
-                
-                let textInputCustomText = NSKTextInputCustomText(
-                    text: text,
-                    cursorPosition: cursorPosition,
-                    warning: textInputWarning
-                )
-                resultHandler(self, .success(textInputCustomText))
-            })
+            }
+        )
         self.textViewDelegate.parentHandler = self
     }
     
     public func configure(textView: UITextView) {
         self.textViewDelegate.configure(textView: textView)
+        
+        let notificationCenter = NotificationCenter.default
+        let token = notificationCenter.addObserver(
+            forName: UITextView.textDidChangeNotification,
+            object: textView,
+            queue: .main,
+            using: self.textDidChangeBlock
+        )
+        
+        let deinitHandler = NSKDeinitHandler(deinitBlock: {
+            notificationCenter.removeObserver(token)
+        })
+        self.deinitHandler = deinitHandler
     }
 }

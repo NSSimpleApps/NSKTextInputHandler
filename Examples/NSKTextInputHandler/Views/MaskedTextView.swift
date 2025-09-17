@@ -17,7 +17,7 @@ struct MaskedTextView: View {
         )
         .introspect(
             .textEditor,
-            on: .iOS(.v15, .v16, .v17, .v18),
+            on: .iOS(.v15, .v16, .v17, .v18, .v26),
             customize: { textView in
                 self.textViewViewModel.configure(textView: textView)
             }
