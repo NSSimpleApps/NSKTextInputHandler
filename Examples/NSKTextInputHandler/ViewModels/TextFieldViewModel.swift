@@ -25,8 +25,7 @@ final class TextFieldViewModel: ObservableObject {
     @Published var text: String = ""
     @Published var suggestion: MaskedTextFieldSuggestion?
     
-    #warning("Тупорылый компилятор.")
-    private let textFieldInputHandler: NSKTextFieldInputHandler<MaskedTextFieldWarning, Error>
+    private let textFieldInputHandler: NSKTextFieldInputHandler<MaskedTextFieldWarning, MaskedTextFieldError>
     
     init(text: String, masker: MaskerProtocol) {
         let mastedText = masker.mask(string: text)
@@ -34,7 +33,7 @@ final class TextFieldViewModel: ObservableObject {
         self.text = mastedText
         
         self.textFieldInputHandler = .init(
-            decisionHandler: { textFieldInputHandler, textInputInfo in
+            decisionHandler: { textFieldInputHandler, textInputInfo throws(MaskedTextFieldError) in
                 let currentText = textInputInfo.currentText
                 
                 switch textInputInfo.textInputAction {
@@ -59,6 +58,7 @@ final class TextFieldViewModel: ObservableObject {
                         }
                     } catch let maskerError as MaskerError {
                         throw MaskedTextFieldError(reason: maskerError.reason)
+                        
                     } catch {
                         fatalError()
                         #warning("Тупорылый компилятор.")
@@ -79,6 +79,7 @@ final class TextFieldViewModel: ObservableObject {
                         }
                     } catch let maskerError as MaskerError {
                         throw MaskedTextFieldError(reason: maskerError.reason)
+                        
                     } catch {
                         fatalError()
                         #warning("Тупорылый компилятор.")
@@ -96,12 +97,8 @@ final class TextFieldViewModel: ObservableObject {
                         self.suggestion = nil
                     }
                     
-                case .failure(let maskedTextFieldError as MaskedTextFieldError):
+                case .failure(let maskedTextFieldError):
                     self.suggestion = .init(suggestion: maskedTextFieldError.reason, color: .red)
-                    
-                default:
-                    #warning("Тупорылый компилятор.")
-                    break
                 }
             })
         

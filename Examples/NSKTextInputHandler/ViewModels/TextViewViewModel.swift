@@ -12,15 +12,14 @@ final class TextViewViewModel: ObservableObject {
     @Published var text: String = ""
     @Published var suggestion: MaskedTextFieldSuggestion?
     
-    #warning("Тупорылый компилятор.")
-    private let textViewInputHandler: NSKTextViewInputHandler<MaskedTextFieldWarning, Error>
+    private let textViewInputHandler: NSKTextViewInputHandler<MaskedTextFieldWarning, MaskedTextFieldError>
     
     init(text: String, masker: MaskerProtocol) {
         let mastedText = masker.mask(string: text)
         
         self.text = mastedText
         self.textViewInputHandler = .init(
-            decisionHandler: { textViewInputHandler, textInputInfo in
+            decisionHandler: { textViewInputHandler, textInputInfo throws(MaskedTextFieldError) in
                 let currentText = textInputInfo.currentText
                 
                 switch textInputInfo.textInputAction {
@@ -45,6 +44,7 @@ final class TextViewViewModel: ObservableObject {
                         }
                     } catch let maskerError as MaskerError {
                         throw MaskedTextFieldError(reason: maskerError.reason)
+                        
                     } catch {
                         fatalError()
                         #warning("Тупорылый компилятор.")
@@ -65,6 +65,7 @@ final class TextViewViewModel: ObservableObject {
                         }
                     } catch let maskerError as MaskerError {
                         throw MaskedTextFieldError(reason: maskerError.reason)
+                        
                     } catch {
                         fatalError()
                         #warning("Тупорылый компилятор.")
@@ -82,12 +83,8 @@ final class TextViewViewModel: ObservableObject {
                         self.suggestion = nil
                     }
                     
-                case .failure(let maskedTextFieldError as MaskedTextFieldError):
+                case .failure(let maskedTextFieldError):
                     self.suggestion = .init(suggestion: maskedTextFieldError.reason, color: .red)
-                    
-                default:
-                    #warning("Тупорылый компилятор.")
-                    break
                 }
             }
         )
