@@ -18,12 +18,14 @@ struct TextViewListView: View {
                 )
                 .frame(maxWidth: .infinity)
             } header: {
-                if let suggestion = self.phoneNumberViewModel.suggestion {
-                    Text(suggestion.suggestion)
-                        .frame(maxWidth: .greatestFiniteMagnitude, alignment: .leading)
-                        .foregroundStyle(suggestion.color)
-                        .font(.caption2)
-                }
+                let suggestion = self.phoneNumberViewModel.suggestion
+                let text = suggestion?.suggestion ?? " "
+                let color = suggestion?.color ?? Color.clear
+                
+                Text(text)
+                    .frame(maxWidth: .greatestFiniteMagnitude, alignment: .leading)
+                    .foregroundStyle(color)
+                    .font(.caption2)
             } footer: {
                 Button("PRINT") {
                     print(self.phoneNumberViewModel.text)

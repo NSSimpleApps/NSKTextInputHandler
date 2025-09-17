@@ -35,6 +35,8 @@ final class TextViewViewModel: ObservableObject {
                         let newMaskedString = maskerStringWithPosition.string
                         let shouldApprove = maskerStringWithPosition.shouldApprove
                         
+                        print(newMaskedString, maskerStringWithPosition.cursorPosition)
+                        
                         if shouldApprove {
                             return .approve(nil)
                         } else {
@@ -52,7 +54,10 @@ final class TextViewViewModel: ObservableObject {
                     
                 case .delete(let deleteRange):
                     do {
-                        let maskerStringWithPosition = try masker.tryDelete(maskedString: currentText, in: deleteRange)
+                        let maskerStringWithPosition = try masker.tryDelete(
+                            maskedString: currentText,
+                            in: deleteRange
+                        )
                         let newMaskedString = maskerStringWithPosition.string
                         let shouldApprove = maskerStringWithPosition.shouldApprove
                         

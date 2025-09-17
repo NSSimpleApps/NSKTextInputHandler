@@ -65,7 +65,8 @@ final class PhoneNumberMasker: MaskerProtocol {
     func tryInsert(
         into maskedString: String,
         replacementString: String,
-        at position: String.Index) throws(MaskerError) -> MaskerString {
+        at position: String.Index
+    ) throws(MaskerError) -> MaskerString {
             let startIndex = maskedString.startIndex
             
             if position == startIndex || position == maskedString.index(after: startIndex) {
@@ -78,6 +79,7 @@ final class PhoneNumberMasker: MaskerProtocol {
             
             if case let numberString = replacementString.filter({ $0.isNumber }), numberString.isNotEmpty {
                 let initialStringCount = maskedString.count
+                let numberCount = numberString.count
                 
                 var maskedString = maskedString
                 maskedString.insert(contentsOf: numberString, at: position)
@@ -87,10 +89,13 @@ final class PhoneNumberMasker: MaskerProtocol {
                 if newMaskedString == maskedString {
                     return .init(
                         string: maskedString,
-                        cursorPosition: maskedString.index(position, offsetBy: numberString.count),
+                        cursorPosition: maskedString.index(position, offsetBy: numberCount),
                         shouldApprove: true)
                 } else {
-                    let offset = newMaskedString.count - initialStringCount
+                    var offset = newMaskedString.count - initialStringCount
+                    if offset == 0 {
+                        offset += numberCount
+                    }
                     
                     return .init(
                         string: newMaskedString,
@@ -102,7 +107,10 @@ final class PhoneNumberMasker: MaskerProtocol {
             }
         }
     
-    func tryDelete(maskedString: String, in range: Range<String.Index>) throws(MaskerError) -> MaskerString {
+    func tryDelete(
+        maskedString: String,
+        in range: Range<String.Index>
+    ) throws(MaskerError) -> MaskerString {
         let startIndex = maskedString.startIndex
         let prefixRange = Range(uncheckedBounds: (startIndex, maskedString.index(startIndex, offsetBy: 2)))
         
