@@ -7,12 +7,13 @@
 
 import UIKit
 
-typealias NSKTextViewDecisionHandler = @MainActor @Sendable (NSKTextViewDelegate, NSKTextViewDecisionInfo) -> Bool
+typealias NSKTextViewDecisionHandler = @MainActor @Sendable (NSKTextViewDelegate, NSKTextViewDecision) -> Bool
 
 final class NSKTextViewDelegate: NSObject {
-    private let decisionHandler: NSKTextViewDecisionHandler
     
     weak var parentHandler: AnyObject?
+    
+    private let decisionHandler: NSKTextViewDecisionHandler
     private weak var textViewSystemDelegate: UITextViewDelegate?
     
     init(
@@ -31,29 +32,38 @@ final class NSKTextViewDelegate: NSObject {
     }
     
     @MainActor
-    func configure(textView: UITextView) {
+    func configure(
+        textView: UITextView
+    ) {
         self.textViewSystemDelegate = textView.delegate
         textView.delegate = self
     }
 }
 
 extension NSKTextViewDelegate: UITextViewDelegate {
+    
     func textView(
         _ textView: UITextView,
         shouldChangeTextIn range: NSRange,
         replacementText text: String
     ) -> Bool {
-        return self.decisionHandler(self,
-                                    .init(
-                                        textView: textView,
-                                        range: range,
-                                        replacementString: text
-                                    )
+        if range.location == 0, text.isEmpty {
+            return false
+        }
+        
+        return self.decisionHandler(
+            self,
+            .init(
+                textView: textView,
+                range: range,
+                replacementString: text
+            )
         )
     }
 }
 
-struct NSKTextViewDecisionInfo {
+struct NSKTextViewDecision {
+    
     let textView: UITextView
     let range: NSRange
     let replacementString: String

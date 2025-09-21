@@ -7,15 +7,18 @@
 
 import UIKit
 
-typealias NSKTextFieldDecisionHandler = @MainActor @Sendable (NSKTextFieldDelegate, NSKTextFieldDecisionInfo) -> Bool
+typealias NSKTextFieldDecisionHandler = @MainActor @Sendable (NSKTextFieldDelegate, NSKTextFieldDecision) -> Bool
 
 final class NSKTextFieldDelegate: NSObject {
-    private let decisionHandler: NSKTextFieldDecisionHandler
     
     weak var parentHandler: AnyObject?
+    
+    private let decisionHandler: NSKTextFieldDecisionHandler
     private weak var textFieldSystemDelegate: UITextFieldDelegate?
     
-    init(decisionHandler: @escaping NSKTextFieldDecisionHandler) {
+    init(
+        decisionHandler: @escaping NSKTextFieldDecisionHandler
+    ) {
         self.decisionHandler = decisionHandler
         super.init()
     }
@@ -29,13 +32,16 @@ final class NSKTextFieldDelegate: NSObject {
     }
     
     @MainActor
-    func configure(textField: UITextField) {
+    func configure(
+        textField: UITextField
+    ) {
         self.textFieldSystemDelegate = textField.delegate
         textField.delegate = self
     }
 }
 
 extension NSKTextFieldDelegate: UITextFieldDelegate {
+    
     func textField(
         _ textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
@@ -45,7 +51,8 @@ extension NSKTextFieldDelegate: UITextFieldDelegate {
     }
 }
 
-struct NSKTextFieldDecisionInfo {
+struct NSKTextFieldDecision {
+    
     let textField: UITextField
     let range: NSRange
     let replacementString: String

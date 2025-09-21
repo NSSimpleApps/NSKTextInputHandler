@@ -17,20 +17,18 @@ struct TextFieldListView: View {
                 MaskedTextField(
                     textFieldViewModel: self.phoneNumberViewModel
                 )
-                .frame(maxWidth: .greatestFiniteMagnitude)
+                .frame(maxWidth: .infinity)
             } header: {
                 let suggestion = self.phoneNumberViewModel.suggestion
                 let text = suggestion?.suggestion ?? " "
                 let color = suggestion?.color ?? Color.clear
                 
                 Text(text)
-                    .frame(maxWidth: .greatestFiniteMagnitude, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundStyle(color)
                     .font(.caption2)
             } footer: {
-                Button("PRINT") {
-                    print(self.phoneNumberViewModel.text)
-                }
+                Text(self.phoneNumberViewModel.text)
             }
         }
     }

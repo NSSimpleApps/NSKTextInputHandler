@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE19F22E2E7AF90C006E0971 /* NSKDeinitHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE19F22D2E7AF8FF006E0971 /* NSKDeinitHandler.swift */; };
 		CE53F5D62E6B1F0B00BAE74B /* NSKTextFieldInputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE53F5D42E6B1F0B00BAE74B /* NSKTextFieldInputHandler.swift */; };
 		CE53F5D72E6B1F0B00BAE74B /* NSKTextFieldDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE53F5D32E6B1F0B00BAE74B /* NSKTextFieldDelegate.swift */; };
 		CE6C83A72E731D5D00CB2530 /* NSKTextViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6C83A62E731D5700CB2530 /* NSKTextViewDelegate.swift */; };
 		CE6C83A92E73210D00CB2530 /* NSKTextViewInputHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6C83A82E73210800CB2530 /* NSKTextViewInputHandler.swift */; };
+		CED76A662E8038C400A2C7BD /* NSKTextInputInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED76A652E8038BC00A2C7BD /* NSKTextInputInfo.swift */; };
 		CEEA3F4B2E689A6F003E9884 /* SwiftUIIntrospect-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = CEEA3F4A2E689A6F003E9884 /* SwiftUIIntrospect-Dynamic */; };
 		CEEA3F4E2E689AA5003E9884 /* SwiftUIIntrospect-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = CEEA3F4A2E689A6F003E9884 /* SwiftUIIntrospect-Dynamic */; };
 /* End PBXBuildFile section */
@@ -31,7 +31,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		CE19F22D2E7AF8FF006E0971 /* NSKDeinitHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSKDeinitHandler.swift; sourceTree = "<group>"; };
 		CE53F5D32E6B1F0B00BAE74B /* NSKTextFieldDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSKTextFieldDelegate.swift; sourceTree = "<group>"; };
 		CE53F5D42E6B1F0B00BAE74B /* NSKTextFieldInputHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSKTextFieldInputHandler.swift; sourceTree = "<group>"; };
 		CE53F5D82E6B1F1F00BAE74B /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Package.swift; path = ../Package.swift; sourceTree = SOURCE_ROOT; };
@@ -39,6 +38,7 @@
 		CE53F5DA2E6B1F2A00BAE74B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = SOURCE_ROOT; };
 		CE6C83A62E731D5700CB2530 /* NSKTextViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSKTextViewDelegate.swift; sourceTree = "<group>"; };
 		CE6C83A82E73210800CB2530 /* NSKTextViewInputHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSKTextViewInputHandler.swift; sourceTree = "<group>"; };
+		CED76A652E8038BC00A2C7BD /* NSKTextInputInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSKTextInputInfo.swift; sourceTree = "<group>"; };
 		CEEA3F152E6898E2003E9884 /* NSKTextInputHandler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NSKTextInputHandler.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -65,7 +65,7 @@
 		CE53F5D52E6B1F0B00BAE74B /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				CE19F22D2E7AF8FF006E0971 /* NSKDeinitHandler.swift */,
+				CED76A652E8038BC00A2C7BD /* NSKTextInputInfo.swift */,
 				CE6C83A82E73210800CB2530 /* NSKTextViewInputHandler.swift */,
 				CE6C83A62E731D5700CB2530 /* NSKTextViewDelegate.swift */,
 				CE53F5D32E6B1F0B00BAE74B /* NSKTextFieldDelegate.swift */,
@@ -178,7 +178,7 @@
 				CE53F5D72E6B1F0B00BAE74B /* NSKTextFieldDelegate.swift in Sources */,
 				CE6C83A92E73210D00CB2530 /* NSKTextViewInputHandler.swift in Sources */,
 				CE6C83A72E731D5D00CB2530 /* NSKTextViewDelegate.swift in Sources */,
-				CE19F22E2E7AF90C006E0971 /* NSKDeinitHandler.swift in Sources */,
+				CED76A662E8038C400A2C7BD /* NSKTextInputInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

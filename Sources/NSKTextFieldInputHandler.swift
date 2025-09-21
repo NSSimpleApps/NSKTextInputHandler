@@ -16,9 +16,9 @@ public typealias NSKTextFieldInputResultHandler<NSKTextInputWarning, NSKTextInpu
 
 @MainActor
 public final class NSKTextFieldInputHandler<NSKTextInputWarning, NSKTextInputError: Error> {
+    
     private let textFieldAction: UIAction
     private let textFieldDelegate: NSKTextFieldDelegate
-    
     public weak var parentHandler: AnyObject?
     private var textInputWarning: NSKTextInputWarning?
     
@@ -29,8 +29,8 @@ public final class NSKTextFieldInputHandler<NSKTextInputWarning, NSKTextInputErr
         let identifier = UIAction.Identifier(rawValue: "ns.simple.apps.NSKTextFieldInputHandler")
         self.textFieldAction = UIAction(
             identifier: identifier,
-            handler: { action in
-                guard let textField = action.sender as? UITextField else { return }
+            handler: { textFieldAction in
+                guard let textField = textFieldAction.sender as? UITextField else { return }
                 guard let textFieldDelegate = textField.delegate as? NSKTextFieldDelegate else { return }
                 guard let self = textFieldDelegate.parentHandler as? Self else { return }
                 
@@ -132,30 +132,4 @@ public final class NSKTextFieldInputHandler<NSKTextInputWarning, NSKTextInputErr
         
         self.textFieldDelegate.configure(textField: textField)
     }
-}
-
-public struct NSKTextInputInfo {
-    public let currentText: String
-    public let textInputAction: NSKTextInputAction
-}
-
-public struct NSKTextInputInsert {
-    public let position: String.Index
-    public let replacementString: String
-}
-
-public enum NSKTextInputAction {
-    case insert(NSKTextInputInsert)
-    case delete(Range<String.Index>)
-}
-
-public struct NSKTextInputCustomText<NSKTextInputWarning> {
-    public let text: String
-    public let cursorPosition: String.Index
-    public let warning: NSKTextInputWarning?
-}
-
-public enum NSKTextInputDecision<NSKTextInputWarning> {
-    case approve(NSKTextInputWarning?)
-    case customText(NSKTextInputCustomText<NSKTextInputWarning>)
 }

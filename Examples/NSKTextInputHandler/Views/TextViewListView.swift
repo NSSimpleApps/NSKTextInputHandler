@@ -23,12 +23,12 @@ struct TextViewListView: View {
                 let color = suggestion?.color ?? Color.clear
                 
                 Text(text)
-                    .frame(maxWidth: .greatestFiniteMagnitude, alignment: .leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundStyle(color)
                     .font(.caption2)
             } footer: {
-                Button("PRINT") {
-                    print(self.phoneNumberViewModel.text)
+                VStack {
+                    Text(self.phoneNumberViewModel.text)
                 }
             }
         }

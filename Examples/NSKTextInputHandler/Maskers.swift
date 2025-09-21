@@ -96,10 +96,15 @@ final class PhoneNumberMasker: MaskerProtocol {
                     if offset == 0 {
                         offset += numberCount
                     }
+                    let cursorPosition = newMaskedString.index(
+                        position,
+                        offsetBy: offset,
+                        limitedBy: newMaskedString.endIndex
+                    ) ?? newMaskedString.endIndex
                     
                     return .init(
                         string: newMaskedString,
-                        cursorPosition: newMaskedString.index(position, offsetBy: offset),
+                        cursorPosition: cursorPosition,
                         shouldApprove: false)
                 }
             } else {

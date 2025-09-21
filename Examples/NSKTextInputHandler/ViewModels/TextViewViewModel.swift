@@ -35,8 +35,6 @@ final class TextViewViewModel: ObservableObject {
                         let newMaskedString = maskerStringWithPosition.string
                         let shouldApprove = maskerStringWithPosition.shouldApprove
                         
-                        print(newMaskedString, maskerStringWithPosition.cursorPosition)
-                        
                         if shouldApprove {
                             return .approve(nil)
                         } else {
@@ -82,6 +80,7 @@ final class TextViewViewModel: ObservableObject {
                 
                 switch textInputCustomText {
                 case .success(let textInputWarning):
+                    self.text = textInputWarning.text
                     if let warning = textInputWarning.warning {
                         self.suggestion = .init(suggestion: warning.warning, color: .yellow)
                     } else {
