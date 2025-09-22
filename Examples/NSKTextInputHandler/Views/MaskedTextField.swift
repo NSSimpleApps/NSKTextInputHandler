@@ -16,6 +16,7 @@ struct MaskedTextField: View {
             "Placeholder",
             text: self.$textFieldViewModel.text
         )
+        .autocorrectionDisabled(true)
         .textFieldStyle(.roundedBorder)
         .introspect(
             .textField,
@@ -26,5 +27,3 @@ struct MaskedTextField: View {
         )
     }
 }
-
-

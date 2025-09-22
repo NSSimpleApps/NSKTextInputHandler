@@ -24,10 +24,26 @@ final class NSKTextViewDelegate: NSObject {
     }
     
     override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        if aSelector == #selector(UITextViewDelegate.textView(_:shouldChangeTextIn:replacementText:)) {
+        if self.respondsDecision(for: aSelector) || self.respondsDecisionV26(for: aSelector) {
             return self
         } else {
             return self.textViewSystemDelegate
+        }
+    }
+    
+    private func respondsDecision(
+        for aSelector: Selector
+    ) -> Bool {
+        return aSelector == #selector(UITextViewDelegate.textView(_:shouldChangeTextIn:replacementText:))
+    }
+    
+    private func respondsDecisionV26(
+        for aSelector: Selector
+    ) -> Bool {
+        if #available(iOS 26.0, *) {
+            return aSelector == #selector(UITextViewDelegate.textView(_:shouldChangeTextInRanges:replacementText:))
+        } else {
+            return false
         }
     }
     
@@ -47,7 +63,7 @@ extension NSKTextViewDelegate: UITextViewDelegate {
         shouldChangeTextIn range: NSRange,
         replacementText text: String
     ) -> Bool {
-        if range.location == 0, text.isEmpty {
+        if range.location == 0, range.length == 0, text.isEmpty {
             return false
         }
         
@@ -58,6 +74,20 @@ extension NSKTextViewDelegate: UITextViewDelegate {
                 range: range,
                 replacementString: text
             )
+        )
+    }
+    
+    func textView(
+        _ textView: UITextView,
+        shouldChangeTextInRanges ranges: [NSValue],
+        replacementText text: String
+    ) -> Bool {
+        guard let range = ranges.first?.rangeValue else { return false }
+        
+        return self.textView(
+            textView,
+            shouldChangeTextIn: range,
+            replacementText: text
         )
     }
 }

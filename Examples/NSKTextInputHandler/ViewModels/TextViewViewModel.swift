@@ -79,9 +79,10 @@ final class TextViewViewModel: ObservableObject {
                 guard let self = textViewInputHandler.parentHandler as? Self else { return }
                 
                 switch textInputCustomText {
-                case .success(let textInputWarning):
-                    self.text = textInputWarning.text
-                    if let warning = textInputWarning.warning {
+                case .success(let textInputCustomText):
+                    self.text = textInputCustomText.text
+                    
+                    if let warning = textInputCustomText.warning {
                         self.suggestion = .init(suggestion: warning.warning, color: .yellow)
                     } else {
                         self.suggestion = nil

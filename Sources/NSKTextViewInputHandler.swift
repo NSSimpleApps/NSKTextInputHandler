@@ -57,8 +57,12 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
                 self.textInputWarning = nil
                 
                 do {
-                    let textInputDecision =
-                    try decisionHandler(self, .init(currentText: currentText, textInputAction: textInputAction))
+                    let textInputDecision = try decisionHandler(
+                        self, .init(
+                            currentText: currentText,
+                            textInputAction: textInputAction
+                        )
+                    )
                     
                     switch textInputDecision {
                     case .approve(let textInputWarning):
@@ -114,10 +118,13 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
         self.textViewDelegate.parentHandler = self
     }
     
-    public func configure(textView: UITextView) {
+    public func configure(
+        textView: UITextView
+    ) {
         self.textViewDelegate.configure(textView: textView)
         
         let notificationCenter = NotificationCenter.default
+        notificationCenter.removeObserver(self)
         notificationCenter.addObserver(
             self,
             selector: #selector(self.textViewDidChange(_:)),
@@ -126,7 +133,9 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
         )
     }
     
-    @objc private func textViewDidChange(_ notification: Notification) {
+    @objc private func textViewDidChange(
+        _ notification: Notification
+    ) {
         guard let textView = notification.object as? UITextView else { return }
         
         let textInputWarning = self.textInputWarning
@@ -144,5 +153,9 @@ public final class NSKTextViewInputHandler<NSKTextInputWarning, NSKTextInputErro
             warning: textInputWarning
         )
         self.resultHandler(self, .success(textInputCustomText))
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

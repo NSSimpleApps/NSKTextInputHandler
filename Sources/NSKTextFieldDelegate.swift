@@ -24,10 +24,26 @@ final class NSKTextFieldDelegate: NSObject {
     }
     
     override func forwardingTarget(for aSelector: Selector!) -> Any? {
-        if aSelector == #selector(UITextFieldDelegate.textField(_:shouldChangeCharactersIn:replacementString:)) {
+        if self.respondsDecision(for: aSelector) || self.respondsDecisionV26(for: aSelector) {
             return self
         } else {
             return self.textFieldSystemDelegate
+        }
+    }
+    
+    private func respondsDecision(
+        for aSelector: Selector
+    ) -> Bool {
+        return aSelector == #selector(UITextFieldDelegate.textField(_:shouldChangeCharactersIn:replacementString:))
+    }
+    
+    private func respondsDecisionV26(
+        for aSelector: Selector
+    ) -> Bool {
+        if #available(iOS 26.0, *) {
+            return aSelector == #selector(UITextFieldDelegate.textField(_:shouldChangeCharactersInRanges:replacementString:))
+        } else {
+            return false
         }
     }
     
@@ -48,6 +64,20 @@ extension NSKTextFieldDelegate: UITextFieldDelegate {
         replacementString string: String
     ) -> Bool {
         return self.decisionHandler(self, .init(textField: textField, range: range, replacementString: string))
+    }
+    
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersInRanges ranges: [NSValue],
+        replacementString string: String
+    ) -> Bool {
+        guard let range = ranges.first?.rangeValue else { return false }
+        
+        return self.textField(
+            textField,
+            shouldChangeCharactersIn: range,
+            replacementString: string
+        )
     }
 }
 

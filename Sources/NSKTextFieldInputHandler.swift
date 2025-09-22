@@ -79,8 +79,13 @@ public final class NSKTextFieldInputHandler<NSKTextInputWarning, NSKTextInputErr
                 self.textInputWarning = nil
                 
                 do {
-                    let textInputDecision =
-                    try decisionHandler(self, .init(currentText: currentText, textInputAction: textInputAction))
+                    let textInputDecision = try decisionHandler(
+                        self,
+                        .init(
+                            currentText: currentText,
+                            textInputAction: textInputAction
+                        )
+                    )
                     
                     switch textInputDecision {
                     case .approve(let textInputWarning):

@@ -15,6 +15,7 @@ struct MaskedTextView: View {
         TextEditor(
             text: self.$textViewViewModel.text
         )
+        .autocorrectionDisabled(true)
         .introspect(
             .textEditor,
             on: .iOS(.v15, .v16, .v17, .v18, .v26),
